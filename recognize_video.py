@@ -2,8 +2,9 @@
 import os
 import cv2
 import imutils
+import copyreg
 import time
-import pickle
+import pickle as pickle
 import numpy as np
 from imutils.video import FPS
 from imutils.video import VideoStream
@@ -19,7 +20,15 @@ print("Loading Face Recognizer...")
 embedder = cv2.dnn.readNetFromTorch("openface_nn4.small2.v1.t7")
 
 # load the actual face recognition model along with the label encoder
-recognizer = pickle.loads(open("output/recognizer.pickle", "rb").read())
+path = "output/recognizer.pickle"
+#temp = "output/recognizer.dump"
+#ledump = "output/le.dump"
+real_path = os.path.realpath(path)
+print(real_path)
+#pickle.dump(path, open(temp,'wb'))
+#pickle.dump("output/le.pickle", open(ledump,'wb'))
+
+recognizer = pickle.loads(open(path, "rb").read())
 le = pickle.loads(open("output/le.pickle", "rb").read())
 
 # initialize the video stream, then allow the camera sensor to warm up
@@ -72,8 +81,8 @@ while True:
 				(96, 96), (0, 0, 0), swapRB=True, crop=False)
 			embedder.setInput(faceBlob)
 			vec = embedder.forward()
-
-			# perform classification to recognize the face
+			print(vec)
+			#perform classification to recognize the face
 			preds = recognizer.predict_proba(vec)[0]
 			j = np.argmax(preds)
 			proba = preds[j]
